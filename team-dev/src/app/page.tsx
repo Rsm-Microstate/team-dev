@@ -21,7 +21,7 @@ export default function Home() {
             .
           </li>
           <li className="tracking-[-.01em]">
-            ヘッダー作成用です
+            ヘッダー作成
           </li>
         </ol>
 
