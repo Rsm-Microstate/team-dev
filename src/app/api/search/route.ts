@@ -22,12 +22,10 @@ export async function GET(request: NextRequest) {
 
     console.log('検索キーワード:', keyword);
 
-    // ヤフオクの検索URL
     const searchUrl = `https://auctions.yahoo.co.jp/search/search?p=${encodeURIComponent(keyword)}&va=${encodeURIComponent(keyword)}`;
     
     console.log('スクレイピングURL:', searchUrl);
 
-    // ユーザーエージェントを設定してリクエスト
     const response = await fetch(searchUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -44,30 +42,23 @@ export async function GET(request: NextRequest) {
     const html = await response.text();
     console.log('HTML取得成功。サイズ:', html.length);
 
-    // cheerioでHTMLをパース
     const $ = cheerio.load(html);
     const items: ScrapedItem[] = [];
 
-    // ヤフオクの検索結果をスクレイピング
-    // 注意: ヤフオクのHTML構造は変更される可能性があります
     $('.Product').each((index, element) => {
       try {
         const $item = $(element);
         
-        // 商品名
         const title = $item.find('.Product__title').text().trim() || 
                      $item.find('h3').text().trim();
         
-        // 画像URL
         const imageUrl = $item.find('.Product__imageData img').attr('src') || 
                         $item.find('img').first().attr('src');
         
-        // 価格
-        const priceText = $item.find('.Product__priceValue').text().trim() ||
-                         $item.find('.u-fs16').text().trim();
-        const price = priceText.replace(/[^0-9]/g, ''); // 数字のみ抽出
+        const priceText = $item.find('.Product__priceValue').first().text().trim() ||
+                         $item.find('.u-fs16').first().text().trim();
+        const price = priceText.replace(/[^0-9]/g, '');
         
-        // オークションID（URLから抽出）
         const link = $item.find('a').attr('href');
         const auctionId = link ? link.match(/[a-z][0-9]+/)?.[0] || `scraped_${index}` : `scraped_${index}`;
 
@@ -88,11 +79,10 @@ export async function GET(request: NextRequest) {
 
     if (items.length === 0) {
       console.log('アイテムが見つかりませんでした。HTML構造が変更された可能性があります。');
-      console.log('HTML最初の1000文字:', html.substring(0, 1000));
     }
 
     return NextResponse.json({
-      items: items.slice(0, 40), // 最大40件
+      items: items.slice(0, 40),
       total: items.length.toString(),
     });
 
