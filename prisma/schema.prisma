@@ -1,0 +1,32 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Listing {
+  id             String   @id @default(cuid())
+  source         String
+  sourceId       String
+  title          String
+  category       String?
+  priceMinorUnit Int
+  price          Int
+  currency       String
+  inStock        Boolean
+  rating         Int?
+  imageUrl       String?
+  productUrl     String
+  description    String?
+  attrs          Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([source, sourceId])
+  @@index([category, priceMinorUnit])
+  @@index([title])
+}
