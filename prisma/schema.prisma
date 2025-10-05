@@ -15,7 +15,6 @@ model Listing {
   title          String
   category       String?
   priceMinorUnit Int
-  // 追加: 既存互換用の価格（最小通貨単位の整数。priceMinorUnit と同値を保存）
   price          Int
   currency       String
   inStock        Boolean
