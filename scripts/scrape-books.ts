@@ -1,7 +1,7 @@
 // scripts/scrape-books.ts
 import { chromium, Page, Browser } from 'playwright';
 import * as cheerio from 'cheerio';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { z } from 'zod';
 
 const prisma = new PrismaClient();
@@ -59,7 +59,7 @@ function parseGBPToMinorUnit(raw: string | undefined): number | null {
   return pence;
 }
 
-function tableValue($$: cheerio.CheerioAPI, key: string): string | undefined {
+function tableValue($$: cheerio.Root, key: string): string | undefined {
   let hit: string | undefined;
   $$('table.table.table-striped tr').each((_, tr) => {
     const k = $$(tr).find('th').text().trim();
@@ -172,8 +172,16 @@ async function scrape() {
 
           await prisma.listing.upsert({
             where: { source_sourceId: { source: 'books.toscrape', sourceId } },
-            update: { ...data, updatedAt: new Date() },
-            create: data,
+            update: {
+              ...data,
+              // Prisma の JSON 型に合わせる
+              attrs: (data as any).attrs as Prisma.InputJsonValue,
+              updatedAt: new Date(),
+            },
+            create: {
+              ...data,
+              attrs: (data as any).attrs as Prisma.InputJsonValue,
+            },
           });
 
           ok++;

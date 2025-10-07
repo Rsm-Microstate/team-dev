@@ -1,6 +1,7 @@
 // app/api/listings/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../../../lib/prisma';
+import { Prisma } from '@prisma/client';
 
 function parseQuery(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -19,10 +20,12 @@ export async function GET(req: NextRequest) {
   if (q) where.title = { contains: q };
   if (category) where.category = { equals: category };
 
-  const orderBy =
-    sort === 'price_asc'  ? { price: 'asc'  } :
-    sort === 'price_desc' ? { price: 'desc' } :
-                            { createdAt: 'desc' };
+  const orderBy: Prisma.ListingOrderByWithRelationInput =
+    sort === 'price_asc'
+      ? { price: 'asc' }
+      : sort === 'price_desc'
+      ? { price: 'desc' }
+      : { createdAt: 'desc' };
 
   const [items, total] = await Promise.all([
     prisma.listing.findMany({

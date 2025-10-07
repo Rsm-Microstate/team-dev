@@ -12,6 +12,8 @@ interface UnifiedItem {
   source: "yahoo" | "books";
   productUrl?: string;
   currency?: string;
+  // 円換算後の価格（計算時に付与）
+  priceJPY?: number;
 }
 
 // 通貨換算レート（1ポンド = 約190円）
@@ -145,20 +147,20 @@ export default function Home() {
               フリマを横断検索して、<span className="text-sky-600">最安値</span>を探そう
             </h2>
 
-            <form onSubmit={handleSearch} className="mt-10 flex justify-center gap-3 max-w-2xl mx-auto px-4">
+            <form onSubmit={handleSearch} className="mt-10 flex justify-center gap-3 max-w-2xl mx-auto px-4 flex-nowrap">
               <div className="flex items-center w-full bg-white rounded-full shadow px-4 py-2 border">
                 <Search className="w-5 h-5 text-slate-400 mr-2" />
                 <input
                   placeholder="例：Harry Potter"
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
-                  className="w-full outline-none"
+                  className="w-full outline-none shrink-0"
                 />
               </div>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-3 bg-sky-600 text-white rounded-full font-semibold hover:bg-sky-700 transition flex items-center"
+                className="px-6 py-3 bg-sky-600 text-white rounded-full font-semibold hover:bg-sky-700 transition flex items-center justify-center whitespace-nowrap min-w-[96px]"
               >
                 {loading ? "検索中..." : "検索"}
                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -220,7 +222,7 @@ export default function Home() {
                   {showFilters && (
                     <div id="filter-panel" className="flex flex-col gap-3">
                     {/* スライダー本体 */}
-                    <div className="relative w-full py-2">
+                    <div className="relative w-full pt-2 pb-10">
                       {/* トラック */}
                       <div className="h-2 bg-slate-200 rounded-full" />
                       {/* 選択範囲のハイライト */}
@@ -260,7 +262,7 @@ export default function Home() {
                         aria-label="最高価格スライダー"
                       />
                       {/* 目盛表示 */}
-                      <div className="mt-3 flex justify-between text-xs text-slate-600">
+                      <div className="mt-5 flex justify-between text-xs text-slate-600">
                         <span>¥{Math.round(sliderMin).toLocaleString()}</span>
                         <span>¥{Math.round(sliderMax).toLocaleString()}</span>
                       </div>
@@ -414,7 +416,7 @@ export default function Home() {
                   ))}
                 </div>
                 {/* Pagination */}
-                <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="text-sm text-slate-600">
                     全{sortedItems.length}件中 {startIdx + 1}–{endIdx}件を表示
                   </div>
